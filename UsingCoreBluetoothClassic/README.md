@@ -122,7 +122,7 @@ UsingCoreBluetoothClassic/
 
 | 类 | 路径 | 说明 |
 |------|------|------|
-| `CentralViewController` | `CoreBluetoothClassicSample/CentralViewController.swift` | 中心设备控制器，负责 CBCentralManager 初始化和 ATT 设备连接事件监听 |
+| `CentralViewController` | `CoreBluetoothClassicSample/CentralViewController.swift` | 中心设备控制器，负责 CBCentralManager 初始化和 GATT Over BR/EDR 设备连接事件监听 |
 | `PeripheralViewController` | `CoreBluetoothClassicSample/PeripheralViewController.swift` | 外设交互控制器，负责服务发现、特征读写与数据收发 |
 | `BTConstants` | `CentralViewController.swift` 内部定义 | 全局 UUID 常量，包含服务 UUID 和读写特征 UUID |
 
@@ -308,10 +308,9 @@ os_log("Received data: %@", receivedText)
 1. **iOS 版本要求**：`registerForConnectionEvents` 方法需要 iOS 13.0 及以上版本。
 2. **性能影响**：频繁地接收连接事件可能会影响应用性能，建议谨慎选择监听哪些设备的连接事件。
 3. **后台模式**：如果需要在后台处理蓝牙连接事件，请在 Info.plist 中配置 `bluetooth-central` 后台模式。
-4. **ATT 设备要求**：
-   - 设备必须是**双模设备**
+4. **GATT Over BR/EDR 设备要求**：
    - 连接之前需确保设备**已配对**（BR/EDR 底层协议要求）
-   - iOS 端 ATT 功能支持可能存在兼容性差异，建议在目标设备上充分测试。
+   - iOS 端 GATT Over BR/EDR 功能支持可能存在兼容性差异，建议在目标设备上充分测试。
 5. **模拟器限制**：蓝牙功能无法在 iOS 模拟器上使用，请使用真机测试。
 
 > Note: 本示例代码关联 WWDC 2019 session [901: What's New in Core Bluetooth](https://developer.apple.com/videos/play/wwdc19/901/)。

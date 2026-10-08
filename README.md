@@ -112,7 +112,7 @@ ios-bt-demo/
 
 | 项目 | 说明 |
 |------|------|
-| **适用场景** | 双模蓝牙设备（经典蓝牙 + BLE），需要通过 GATT 协议进行高速数据通讯 |
+| **适用场景** | 蓝牙设备（经典蓝牙 ），需要通过 GATT 协议进行高速数据通讯 |
 | **关键特性** | GATT over BR/EDR 连接/断开管理、数据收发、GATT 服务发现 |
 | **核心类** | `CBCentralManager`（蓝牙扫描）、`CBPeripheral`（外设管理） |
 | **参考文档** | [UsingCoreBluetoothClassic 详细说明](UsingCoreBluetoothClassic/README.md) |

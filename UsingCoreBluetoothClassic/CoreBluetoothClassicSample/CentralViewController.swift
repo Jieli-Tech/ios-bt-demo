@@ -9,43 +9,86 @@ struct BTConstants {
 }
 
 class CentralViewController: UIViewController {
+    private var tipsLab: UILabel!
+    private var listHintLab: UILabel!
     private var tableView: UITableView!
     private var cbManager: CBCentralManager!
     private var cbState = CBManagerState.unknown
     private var cbPeripherals = [CBPeripheral]()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // 设置 View Controller 的标题
         title = "Peripherals"
+        // MARK: - 顶部提示
+        tipsLab = UILabel()
+        tipsLab.numberOfLines = 0
+        tipsLab.text = "GATT over BR/EDR 要求用户先在系统蓝牙设置中完成经典蓝牙设备配对与连接。只有在连接建立之后，该设备才会出现在此设备列表中。当前默认的可发现特征（Discoverable Characteristic）为 AE00；若该特征值不正确，设备将无法被发现。\nFor GATT over BR/EDR, the user must first complete Classic Bluetooth pairing and connection via the system Bluetooth settings. The device will only be discovered in this list after the connection is established. The current default discoverable characteristic is AE00. If this value is incorrect, the device cannot be discovered."
+        tipsLab.translatesAutoresizingMaskIntoConstraints = false
 
-        // 1. 创建 tableView
+        // 圆角 + 描边
+        tipsLab.layer.cornerRadius = 8
+        tipsLab.layer.borderWidth = 1.0
+        tipsLab.layer.borderColor = UIColor.systemGray4.resolvedColor(with: traitCollection).cgColor
+        tipsLab.clipsToBounds = true
+
+        view.addSubview(tipsLab)
+
+        // MARK: - 下方说明：提示用户 tableview 才是发现的设备
+        listHintLab = UILabel()
+        listHintLab.numberOfLines = 0
+        listHintLab.text = "下方列表展示的是已发现的设备。\nThe list below shows the discovered devices."
+        listHintLab.font = .systemFont(ofSize: 13)
+        listHintLab.textColor = .secondaryLabel
+        listHintLab.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(listHintLab)
+
+        // MARK: - tableView
         tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
+        if #available(iOS 15.0, *) {
+            tableView.sectionHeaderTopPadding = 0
+        } else {
+            // Fallback on earlier versions
+        }
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "peripheralCell")
         view.addSubview(tableView)
 
-        // 2. 添加 Auto Layout 约束
+        // MARK: - 约束
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            // tipsLab
+            tipsLab.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            tipsLab.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tipsLab.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+
+            // listHintLab：紧贴 tipsLab 下方
+            listHintLab.topAnchor.constraint(equalTo: tipsLab.bottomAnchor, constant: 8),
+            listHintLab.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            listHintLab.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+
+            // tableView：接在 listHintLab 底部
+            tableView.topAnchor.constraint(equalTo: listHintLab.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-
+        
         // 3. 初始化 CBCentralManager
         cbManager = CBCentralManager(delegate: self, queue: nil)
     }
 }
 
+
+
+
 extension CentralViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cbPeripherals.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "peripheralCell", for: indexPath)
         let index = cbPeripherals.count - (indexPath.row + 1)
@@ -88,7 +131,7 @@ extension CentralViewController: CBCentralManagerDelegate {
             os_log("清理 cbManager")
         }
     }
-
+    
     func centralManager(_ central: CBCentralManager, connectionEventDidOccur event: CBConnectionEvent, for peripheral: CBPeripheral) {
         switch event {
         case .peerConnected:
@@ -103,7 +146,7 @@ extension CentralViewController: CBCentralManagerDelegate {
         }
         tableView.reloadData()
     }
-
+    
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         os_log("peripheral: %@ connected", peripheral)
         let peripheralVC = PeripheralViewController()
@@ -111,11 +154,11 @@ extension CentralViewController: CBCentralManagerDelegate {
         peripheralVC.selectedPeripheral = peripheral
         present(peripheralVC, animated: true, completion: nil)
     }
-
+    
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         os_log("peripheral: %@ failed to connect", peripheral)
     }
-
+    
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         os_log("peripheral: %@ disconnected", peripheral)
     }

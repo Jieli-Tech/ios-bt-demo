@@ -112,7 +112,7 @@ iOS-BT-Demo/
 
 | Item | Description |
 |------|------|
-| **Applicable Scenarios** | Dual-mode Bluetooth devices (Classic Bluetooth + BLE), requiring high-speed data communication via GATT protocol |
+| **Applicable Scenarios** | Bluetooth devices (Classic Bluetooth), requiring high-speed data communication via GATT protocol |
 | **Key Features** | GATT over BR/EDR connection/disconnection management, data send/receive, GATT service discovery |
 | **Core Classes** | `CBCentralManager` (Bluetooth scanning), `CBPeripheral` (Peripheral management) |
 | **Reference Documentation** | [UsingCoreBluetoothClassic Details](UsingCoreBluetoothClassic/README.md) |
